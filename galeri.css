@@ -1,0 +1,204 @@
+/* Body */
+body {
+  font-family: "Arial", sans-serif;
+  line-height: 1.6;
+  background-color: #2e1c1c; /* Warna gelap dengan nuansa merah */
+  color: #fdf5e6; /* Warna krem untuk kontras yang hangat */
+}
+
+/* Navbar */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 50px;
+  background-color: rgba(128, 0, 0, 0.95);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo img {
+  height: 50px;
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.logo img:hover {
+  transform: scale(1.1);
+  filter: brightness(1.2);
+}
+
+.navbar .logo h1 {
+  font-family: "Fira Sans", sans-serif; /* Modern, clean sans-serif font */
+  font-size: 60px; /* Medium size, but with visual presence */
+  font-weight: 600; /* Bold enough for attention but not too heavy */
+  color: #333; /* Neutral dark gray for sophistication */
+  text-transform: uppercase; /* Structured and bold */
+  letter-spacing: 3px; /* Subtle spacing for readability */
+  text-align: center;
+  padding: 10px 20px; /* Added padding for balance */
+  margin: 0;
+  position: relative;
+}
+
+.navbar .logo h1 b {
+  color: #ff6347; /* Soft red accent for the 'DAS' */
+  font-weight: 700; /* Bold the 'DAS' to give it extra emphasis */
+}
+
+.navbar .logo h1::before {
+  content: "";
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: #ff6347; /* Accent color line beneath the text */
+  border-radius: 5px;
+  opacity: 0.6; /* Subtle effect for a cleaner look */
+}
+
+.navbar nav ul {
+  list-style: none;
+  display: flex;
+  gap: 25px;
+}
+
+.navbar nav ul li a {
+  text-decoration: none;
+  font-weight: 600;
+  color: #fff;
+  position: relative;
+}
+
+.navbar nav ul li a:hover {
+  color: #ff6347;
+  transform: translateY(-2px);
+  text-shadow: 0 2px 5px rgba(255, 99, 71, 0.8);
+}
+
+.navbar nav ul li a.active::after {
+  content: "";
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  height: 3px;
+  background-color: #ff6347;
+  transition: width 0.3s ease;
+}
+
+/* Galeri */
+.gallary {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  margin: 20px auto;
+  padding: 10px;
+  perspective: 1000px; /* Tambahkan perspektif untuk efek 3D */
+}
+
+/* Item galeri */
+.gallary .gallary-item {
+  flex: 1 1 calc(25% - 20px); /* Ukuran lebih besar (25% dari lebar kontainer) */
+  max-width: calc(25% - 20px);
+  position: relative;
+  overflow: hidden;
+  border: 2px solid #8b0000;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease, box-shadow 0.3s ease; /* Transisi untuk efek halus */
+  transform: translateZ(0); /* Awal posisi tanpa efek 3D */
+}
+
+/* Efek pop-up saat hover */
+.gallary .gallary-item:hover {
+  transform: scale(1.1) translateZ(20px); /* Gambar maju dan membesar */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4); /* Efek bayangan lebih besar */
+}
+
+.gallary .gallary-item:hover .gallary-img {
+  transform: scale(1.1); /* Gambar membesar secara proporsional */
+  filter: brightness(1.1); /* Sedikit kecerahan */
+}
+
+.gallary .gallary-item .gallary-img {
+  width: 100%;
+  height: 280px; /* Tinggi lebih besar */
+  object-fit: cover;
+  border-radius: 10px;
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+/* Overlay pada item galeri */
+.gallary .gallary-item .gallary-overlay {
+  background: rgba(255, 69, 0, 0.7); /* Merah tomat transparan */
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  border-radius: 12px;
+}
+
+.gallary .gallary-item:hover .gallary-overlay {
+  visibility: visible;
+  opacity: 1;
+}
+
+.gallary .gallary-item .gallary-overlay .gallary-icon {
+  font-size: 2.5rem;
+  color: #fdf5e6;
+  text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.7);
+}
+
+/* Responsif untuk layar sedang */
+@media (max-width: 1024px) {
+  .gallary .gallary-item {
+    flex: 1 1 calc(33% - 20px); /* Perbesar ukuran di layar sedang */
+    max-width: calc(33% - 20px);
+  }
+
+  .gallary .gallary-img {
+    height: 240px; /* Tinggi lebih besar */
+  }
+}
+
+/* Responsif untuk tablet */
+@media (max-width: 768px) {
+  .gallary .gallary-item {
+    flex: 1 1 calc(45% - 20px); /* Ukuran lebih besar untuk tablet */
+    max-width: calc(45% - 20px);
+  }
+
+  .gallary .gallary-img {
+    height: 220px; /* Tinggi lebih besar */
+  }
+}
+
+/* Responsif untuk perangkat kecil */
+@media (max-width: 480px) {
+  .gallary .gallary-item {
+    flex: 1 1 100%;
+    max-width: 100%;
+  }
+
+  .gallary .gallary-img {
+    height: 200px; /* Tinggi lebih besar */
+  }
+}

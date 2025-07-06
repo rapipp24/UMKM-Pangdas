@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Menu - PangDAS</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <!-- Header -->
+    <header class="navbar">
+      <div class="logo">
+        <img src="img/logo.png" alt="Logo PangDAS" />
+        <h1>Pang<b>DAS</b></h1>
+      </div>
+      <nav>
+        <ul>
+          <li><a href="home.html">Home</a></li>
+          <li><a class="active" href="menu.html">Menu</a></li>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="gallery.html">Gallery</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <!-- Menu Section -->
+    <section class="menu-section">
+      <!-- Menu Card -->
+      <div class="menu-card">
+        <img
+          src="../PROJEK WEBSITE UMKM/img/ORIGINAL.jpg"
+          alt="Pangdas Original"
+        />
+        <h3>PANGDAS ORIGINAL</h3>
+        <p>Level 1 🌶️ | Level 2 🌶️🌶️ | Level 3 🌶️🌶️🌶️</p>
+        <p class="price">10K</p>
+        <button onclick="addToCart('PANGDAS ORIGINAL')">
+          Tambah ke Keranjang
+        </button>
+      </div>
+
+      <!-- Menu Card -->
+      <div class="menu-card">
+        <img src="../PROJEK WEBSITE UMKM/img/KUAH.jpg" alt="Pangdas Kuah" />
+        <h3>PANGDAS KUAH</h3>
+        <p>Level 1 🌶️ | Level 2 🌶️🌶️ | Level 3 🌶️🌶️🌶️</p>
+        <p class="price">12K</p>
+        <button onclick="addToCart('PANGDAS KUAH')">Tambah ke Keranjang</button>
+      </div>
+
+      <!-- Menu Card -->
+      <div class="menu-card">
+        <img src="../PROJEK WEBSITE UMKM/img/mentai.JPG" alt="Pangdas Mentai" />
+        <h3>PANGDAS MENTAI</h3>
+        <p>Extra Sambal: Rp 2.000/cup</p>
+        <p class="price">18K</p>
+        <button onclick="addToCart('PANGDAS MENTAI')">
+          Tambah ke Keranjang
+        </button>
+      </div>
+    </section>
+
+    <!-- Tombol Keranjang dan Checkout -->
+    <div class="cart-buttons">
+      <button>
+        <a href="keranjang.html">Lihat Keranjang</a>
+      </button>
+      <button onclick="checkout()">Checkout via WhatsApp</button>
+    </div>
+
+    <!-- Keranjang Pesanan -->
+    <section id="cart" class="cart-section" style="display: none">
+      <h2>Keranjang Anda</h2>
+      <ul id="cart-items"></ul>
+      <button onclick="checkout()">Checkout via WhatsApp</button>
+    </section>
+
+    <!-- JavaScript -->
+    <script>
+      let orderCart = JSON.parse(localStorage.getItem("orderCart")) || []; // Ambil data keranjang dari localStorage
+
+      function addToCart(menuName) {
+        let level = "";
+        let extras = "";
+        let price = 0;
+
+        // Tentukan harga berdasarkan menu
+        if (menuName === "PANGDAS ORIGINAL") {
+          price = 10000;
+          level = prompt("Masukkan level pedas (1, 2, 3):", "1");
+        } else if (menuName === "PANGDAS KUAH") {
+          price = 12000;
+          level = prompt("Masukkan level pedas (1, 2, 3):", "1");
+        } else if (menuName === "PANGDAS MENTAI") {
+          price = 18000;
+          const addExtra = confirm(
+            "Apakah ingin menambahkan ekstra sambal? (+Rp 2.000)"
+          );
+          extras = addExtra ? "dengan ekstra sambal" : "tanpa ekstra sambal";
+          if (addExtra) {
+            price += 2000; // Tambahkan biaya ekstra sambal
+          }
+        }
+
+        // Validasi level untuk menu dengan level pedas
+        if (menuName !== "PANGDAS MENTAI") {
+          while (!level || isNaN(level) || level < 1 || level > 3) {
+            if (level === null) {
+              alert("Pesanan dibatalkan.");
+              return;
+            }
+            level = prompt(
+              "Input tidak valid. Masukkan level pedas (1, 2, 3):",
+              "1"
+            );
+          }
+        }
+
+        // Tambahkan item ke keranjang
+        orderCart.push({ menuName, level, extras, price });
+        localStorage.setItem("orderCart", JSON.stringify(orderCart)); // Simpan ke localStorage
+        alert(`Menu ${menuName} berhasil ditambahkan ke keranjang!`);
+      }
+
+      function viewCart() {
+        const cartContainer = document.getElementById("cart-items");
+        cartContainer.innerHTML = ""; // Reset keranjang
+        let totalPrice = 0; // Variabel untuk menghitung total harga
+
+        if (orderCart.length === 0) {
+          alert(
+            "Keranjang Anda kosong. Silakan tambahkan menu terlebih dahulu."
+          );
+          return;
+        }
+
+        // Menampilkan daftar pesanan di keranjang
+        orderCart.forEach((item, index) => {
+          const cartItem = document.createElement("li");
+          cartItem.innerHTML = `
+            ${item.menuName} 
+            ${item.level ? `, Level Pedas: ${item.level}` : ""} 
+            ${item.extras} 
+            - Rp ${item.price.toLocaleString()} 
+            <button onclick="removeFromCart(${index})">Hapus</button>
+          `;
+          cartContainer.appendChild(cartItem);
+          totalPrice += item.price; // Tambahkan harga item ke total harga
+        });
+
+        // Tambahkan total harga di bawah daftar item
+        const totalElement = document.createElement("p");
+        totalElement.innerHTML = `<strong>Total Harga: Rp ${totalPrice.toLocaleString()}</strong>`;
+        cartContainer.appendChild(totalElement);
+
+        document.getElementById("cart").style.display = "block"; // Tampilkan keranjang
+      }
+
+      function removeFromCart(index) {
+        // Hapus item dari keranjang
+        orderCart.splice(index, 1);
+        localStorage.setItem("orderCart", JSON.stringify(orderCart)); // Simpan perubahan ke localStorage
+        alert("Pesanan berhasil dihapus dari keranjang.");
+        location.reload(); // Refresh halaman setelah menghapus item
+      }
+
+      function checkout() {
+        if (orderCart.length === 0) {
+          alert(
+            "Keranjang Anda kosong. Silakan tambahkan menu terlebih dahulu."
+          );
+          return;
+        }
+
+        let message = "Halo, saya ingin memesan:\n";
+        let totalPrice = 0;
+
+        orderCart.forEach((item, index) => {
+          message += `${index + 1}. ${item.menuName} ${
+            item.level ? `, Level Pedas: ${item.level}` : ""
+          } ${item.extras} - Rp ${item.price.toLocaleString()}\n`;
+          totalPrice += item.price; // Hitung total harga
+        });
+
+        message += `\nTotal Harga: Rp ${totalPrice.toLocaleString()}\n`;
+        message += "\nTerima kasih!";
+
+        const waLink = `https://wa.me/62887437763488?text=${encodeURIComponent(
+          message
+        )}`;
+        window.open(waLink, "_blank");
+      }
+    </script>
+
+    <!-- Footer -->
+    <footer>
+      <p>Order via Social Media:</p>
+      <div class="social-links">
+        <a href="https://www.instagram.com/pangdas.lpg" target="_blank">
+          <i class="fab fa-instagram"></i> Instagram
+        </a>
+        <a href="https://wa.me/62887437763488" target="_blank">
+          <i class="fab fa-whatsapp"></i> WhatsApp
+        </a>
+      </div>
+    </footer>
+  </body>
+</html>

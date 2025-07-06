@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="img/logo.png" type="image/png" />
+    <title>Keranjang Pesanan</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f9f9f9;
+      }
+
+      .cart-section {
+        max-width: 800px;
+        margin: 20px auto;
+        background-color: #ffffff;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        padding: 20px;
+      }
+
+      h2 {
+        font-size: 24px;
+        margin-bottom: 20px;
+        text-align: center;
+        color: #333;
+      }
+
+      label {
+        font-weight: bold;
+        margin-bottom: 8px;
+        display: block;
+      }
+
+      input {
+        width: calc(100% - 20px);
+        padding: 10px;
+        margin-bottom: 5px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+
+      input.error {
+        border-color: red;
+      }
+
+      .error-message {
+        color: red;
+        font-size: 12px;
+        margin-top: -10px;
+        margin-bottom: 15px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+      }
+
+      table thead {
+        background-color: #f1f1f1;
+      }
+
+      table th,
+      table td {
+        text-align: center;
+        padding: 12px;
+        border: 1px solid #eee;
+        max-width: 150px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      table tfoot {
+        font-weight: bold;
+        background-color: #f9f9f9;
+      }
+
+      .btn {
+        display: inline-block;
+        padding: 10px 20px;
+        font-size: 14px;
+        font-weight: bold;
+        color: #fff;
+        background-color: #28a745;
+        border: none;
+        border-radius: 4px;
+        text-decoration: none;
+        text-align: center;
+        cursor: pointer;
+        margin-right: 10px;
+        transition: all 0.2s ease-in-out;
+      }
+
+      .btn-danger {
+        background-color: #dc3545;
+      }
+
+      .btn-back {
+        background-color: #007bff;
+        margin-bottom: 10px;
+      }
+
+      .btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        opacity: 0.9;
+      }
+
+      .btn:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+      }
+
+      /* Media Queries for Responsive Design */
+      @media (max-width: 768px) {
+        .cart-section {
+          margin: 10px;
+          padding: 15px;
+        }
+
+        h2 {
+          font-size: 20px;
+        }
+
+        input {
+          width: calc(100% - 16px);
+          padding: 8px;
+        }
+
+        table th,
+        table td {
+          font-size: 12px;
+          padding: 8px;
+        }
+
+        .btn {
+          padding: 8px 16px;
+          font-size: 12px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        table thead {
+          display: none;
+        }
+
+        table tr {
+          display: block;
+          margin-bottom: 10px;
+        }
+
+        table td {
+          display: block;
+          text-align: left;
+          padding: 10px;
+          border: none;
+          border-bottom: 1px solid #ddd;
+        }
+
+        table td::before {
+          content: attr(data-label);
+          font-weight: bold;
+          display: inline-block;
+          margin-right: 10px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <section id="cart" class="cart-section">
+      <button class="btn btn-back" onclick="goBack()">Kembali</button>
+      <h2>Keranjang Anda</h2>
+      <label for="customer-name">Atas Nama:</label>
+      <input type="text" id="customer-name" placeholder="Masukkan nama Anda" />
+      <p id="name-error" class="error-message" style="display: none">
+        Nama wajib diisi sebelum checkout.
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>Menu</th>
+            <th>Level Pedas</th>
+            <th>Ekstra</th>
+            <th>Harga</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="cart-items"></tbody>
+        <tfoot>
+          <tr>
+            <td colspan="4" style="text-align: right">Total Harga:</td>
+            <td id="total-price" colspan="2">Rp 0</td>
+          </tr>
+        </tfoot>
+      </table>
+      <button class="btn" id="checkout-btn" onclick="checkout()">
+        Checkout via WhatsApp
+      </button>
+      <button class="btn btn-danger" id="clear-btn" onclick="clearCart()">
+        Hapus Semua
+      </button>
+    </section>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const cartContainer = document.getElementById("cart-items");
+        const totalPriceElement = document.getElementById("total-price");
+        const checkoutButton = document.getElementById("checkout-btn");
+        const clearButton = document.getElementById("clear-btn");
+        const orderCart = JSON.parse(localStorage.getItem("orderCart")) || [];
+
+        // Harga menu (harus konsisten dengan harga di menu)
+        const menuPrices = {
+          "PANGDAS ORIGINAL": 10000,
+          "PANGDAS KUAH": 12000,
+          "PANGDAS MENTAI": 18000,
+        };
+
+        let totalPrice = 0;
+
+        if (orderCart.length === 0) {
+          cartContainer.innerHTML = `<tr><td colspan="6">Keranjang Anda kosong.</td></tr>`;
+          totalPriceElement.textContent = "Rp 0";
+          checkoutButton.style.display = "none";
+          clearButton.style.display = "none";
+          return;
+        }
+
+        orderCart.forEach((item, index) => {
+          const menuPrice = menuPrices[item.menuName] || 0;
+          const extraPrice = item.extras === "dengan ekstra sambal" ? 2000 : 0;
+          const itemPrice = menuPrice + extraPrice;
+          totalPrice += itemPrice;
+
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td data-label="No">${index + 1}</td>
+            <td data-label="Menu">${item.menuName}</td>
+            <td data-label="Level Pedas">${item.level || "-"}</td>
+            <td data-label="Ekstra">${item.extras || "-"}</td>
+            <td data-label="Harga">Rp ${itemPrice.toLocaleString()}</td>
+            <td data-label="Aksi"><button class="btn btn-danger" onclick="removeFromCart(${index})">Hapus</button></td>
+          `;
+          cartContainer.appendChild(row);
+        });
+
+        totalPriceElement.textContent = `Rp ${totalPrice.toLocaleString()}`;
+      });
+
+      function goBack() {
+        if (document.referrer) {
+          window.history.back();
+        } else {
+          window.location.href = "menu.html";
+        }
+      }
+
+      function removeFromCart(index) {
+        const orderCart = JSON.parse(localStorage.getItem("orderCart")) || [];
+        orderCart.splice(index, 1);
+        localStorage.setItem("orderCart", JSON.stringify(orderCart));
+        alert("Pesanan berhasil dihapus dari keranjang.");
+        location.reload();
+      }
+
+      function clearCart() {
+        if (
+          confirm("Apakah Anda yakin ingin menghapus semua item di keranjang?")
+        ) {
+          localStorage.removeItem("orderCart");
+          alert("Semua item berhasil dihapus dari keranjang.");
+          location.reload();
+        }
+      }
+
+      function checkout() {
+        const customerName = document
+          .getElementById("customer-name")
+          .value.trim();
+        if (!customerName) {
+          document.getElementById("name-error").style.display = "block";
+          return;
+        }
+
+        const orderCart = JSON.parse(localStorage.getItem("orderCart")) || [];
+        const menuPrices = {
+          "PANGDAS ORIGINAL": 10000,
+          "PANGDAS KUAH": 12000,
+          "PANGDAS MENTAI": 18000,
+        };
+
+        let totalPrice = 0;
+        let message = `Halo, saya ingin memesan:\n\n`;
+
+        orderCart.forEach((item, index) => {
+          const menuPrice = menuPrices[item.menuName] || 0;
+          const extraPrice = item.extras === "dengan ekstra sambal" ? 2000 : 0;
+          const itemPrice = menuPrice + extraPrice;
+          totalPrice += itemPrice;
+
+          message += `${index + 1}. ${item.menuName} - Level: ${
+            item.level || "-"
+          } - ${
+            item.extras || "-"
+          } - Harga: Rp ${itemPrice.toLocaleString()}\n`;
+        });
+
+        message += `\nTotal Harga: Rp ${totalPrice.toLocaleString()}\n\nPesanan ini atas nama ${customerName} untuk tanggal ${new Date().toLocaleString()}`;
+
+        const whatsappURL = `https://wa.me/62887437763488?text=${encodeURIComponent(
+          message
+        )}`;
+        window.open(whatsappURL, "_blank");
+      }
+    </script>
+  </body>
+</html>
